@@ -1,6 +1,10 @@
+from db import setup_db
 import sqlite3
+import os
 
-conn = sqlite3.connect("sample.db")
+os.makedirs("db", exist_ok=True)
+
+conn = sqlite3.connect("db/sample.db")
 cur = conn.cursor()
 
 cur.execute("""
@@ -29,5 +33,5 @@ cur.executemany(
 
 conn.commit()
 conn.close()
-print("✅ Database ready.")
 
+print("✅ Database initialized")
