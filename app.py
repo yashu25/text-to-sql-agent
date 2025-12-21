@@ -19,7 +19,9 @@ def home():
     if request.method == "POST":
         q = request.form["question"]
         sql = generate_sql(q, SCHEMA)
+        sql = sql.replace("```sql", "").replace("```", "").strip()
         sql = validate_sql(sql)
+
 
         conn = sqlite3.connect("db/sample.db")
         cur = conn.cursor()
