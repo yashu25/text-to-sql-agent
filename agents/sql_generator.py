@@ -4,6 +4,9 @@ import requests
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 def generate_sql(question, schema):
+    if not GROQ_API_KEY:
+        raise RuntimeError("GROQ_API_KEY is not set")
+
     prompt = f"""
 You are an expert data analyst.
 
@@ -14,13 +17,14 @@ Rules:
 - Generate ONLY a SELECT SQL query
 - Do not use DELETE, UPDATE, INSERT, DROP
 - Use correct column names
-- Do not explain anything
+- Do not add explanations or markdown
 
 User question:
 {question}
 
 Return only SQL.
 """
+
     response = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         headers={
@@ -34,7 +38,15 @@ Return only SQL.
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0
-        }
+        },
+        timeout=30
     )
-    return response.json()["choices"][0]["message"]["content"]
 
+    data = response.json()
+
+    # 🔴 CRITICAL SAFETY CHECK
+    if "choices" not in data:
+        raise RuntimeError(f"Groq API Error: {data}")
+
+    sql = data["choices"][0]["message"]["content"]
+    return sql.strip()
