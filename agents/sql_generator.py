@@ -32,7 +32,7 @@ Return only SQL.
             "Content-Type": "application/json"
         },
         json={
-           "model": "llama-3.2-8b-instruct",
+           "model": "mixtral-8x7b-32768",
             "messages": [
                 {"role": "system", "content": "You generate SQL queries."},
                 {"role": "user", "content": prompt}
