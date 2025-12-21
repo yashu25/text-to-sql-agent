@@ -1,1 +1,48 @@
+body {
+  background: #0f172a;
+  color: #e5e7eb;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  width: 700px;
+  margin: 50px auto;
+}
+
+h1 {
+  color: #38bdf8;
+}
+
+.subtitle {
+  color: #94a3b8;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  margin-bottom: 10px;
+}
+
+button {
+  background: #38bdf8;
+  color: black;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.card {
+  background: #020617;
+  padding: 15px;
+  margin-top: 20px;
+  border-radius: 10px;
+}
+
+pre {
+  color: #22d3ee;
+  white-space: pre-wrap;
+}
 
