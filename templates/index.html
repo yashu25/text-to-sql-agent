@@ -1,1 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Text-to-SQL Decision Agent</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Text-to-SQL Decision Agent</h1>
+    <p class="subtitle">Ask business questions. Get instant SQL answers.</p>
+
+    <form method="post">
+      <input name="question" placeholder="e.g. Total revenue in 2025 by region" required>
+      <button>Generate</button>
+    </form>
+
+    {% if sql %}
+      <div class="card">
+        <h3>Generated SQL</h3>
+        <pre>{{ sql }}</pre>
+      </div>
+    {% endif %}
+
+    {% if result %}
+      <div class="card">
+        <h3>Query Result</h3>
+        <pre>{{ result }}</pre>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
 
