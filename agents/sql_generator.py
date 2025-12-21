@@ -29,9 +29,7 @@ Return only SQL.
         "https://openrouter.ai/api/v1/chat/completions",
         headers={
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://localhost",
-            "X-Title": "Text-to-SQL-Agent"
+            "Content-Type": "application/json"
         },
         json={
             "model": "mistralai/mistral-7b-instruct",
