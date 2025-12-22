@@ -8,24 +8,26 @@ def generate_sql(question, schema):
         raise RuntimeError("OPENROUTER_API_KEY not set")
 
     prompt = f"""
-You are an expert SQL generator.
+You are an expert SQLite SQL generator.
 
 Database schema:
 {schema}
 
-STRICT RULES:
-- Use ONLY table names exactly as provided in the schema
-- NEVER use the word 'table' as a table name
-- Generate ONLY a single valid SQLite SELECT query
+STRICT RULES (VERY IMPORTANT):
+- Use ONLY table and column names from the schema
+- NEVER use positional references like GROUP BY 1 or ORDER BY 1
+- ALWAYS use explicit column names in GROUP BY and ORDER BY
+- Generate ONLY one valid SQLite SELECT query
 - No explanations
 - No markdown
-- Do not hallucinate columns or tables
+- No comments
 
 User question:
 {question}
 
 Return ONLY the SQL query.
 """
+
 
     response = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
