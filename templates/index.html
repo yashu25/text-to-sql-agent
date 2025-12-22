@@ -8,11 +8,24 @@
   <div class="container">
     <h1>Text-to-SQL Decision Agent</h1>
     <p class="subtitle">Ask business questions. Get instant SQL answers.</p>
+    <form method="post" enctype="multipart/form-data">
+  <input type="file" name="excel" accept=".xlsx" required>
+  <button>Upload Excel</button>
+</form>
+
 
     <form method="post">
       <input name="question" placeholder="e.g. Total revenue in 2025 by region" required>
       <button>Generate</button>
     </form>
+
+    {% if schema %}
+    <div class="card">
+    <h3>Detected Schema</h3>
+    <pre>{{ schema }}</pre>
+    </div>
+    {% endif %}
+
 
     {% if sql %}
       <div class="card">
@@ -20,6 +33,14 @@
         <pre>{{ sql }}</pre>
       </div>
     {% endif %}
+
+    {% if explanation %}
+    <div class="card">
+    <h3>SQL Explanation</h3>
+    <p>{{ explanation }}</p>
+    </div>
+    {% endif %}
+
 
     {% if result %}
       <div class="card">
