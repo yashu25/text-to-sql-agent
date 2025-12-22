@@ -54,7 +54,7 @@ def home():
         cur = conn.cursor()
         cur.execute(sql)
         if " table " in sql.lower():
-        raise ValueError("Invalid SQL generated: reserved keyword 'table' used")
+            raise ValueError("Invalid SQL generated: reserved keyword 'table' used")
 
         result = cur.fetchall()
         conn.close()
