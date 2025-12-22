@@ -53,6 +53,9 @@ def home():
         conn = sqlite3.connect("db/sample.db")
         cur = conn.cursor()
         cur.execute(sql)
+        if " table " in sql.lower():
+        raise ValueError("Invalid SQL generated: reserved keyword 'table' used")
+
         result = cur.fetchall()
         conn.close()
 
