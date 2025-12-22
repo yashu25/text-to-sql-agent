@@ -8,21 +8,23 @@ def generate_sql(question, schema):
         raise RuntimeError("OPENROUTER_API_KEY not set")
 
     prompt = f"""
-You are an expert data analyst.
+You are an expert SQL generator.
 
 Database schema:
 {schema}
 
-Rules:
-- Generate ONLY a SELECT SQL query
+STRICT RULES:
+- Use ONLY table names exactly as provided in the schema
+- NEVER use the word 'table' as a table name
+- Generate ONLY a single valid SQLite SELECT query
 - No explanations
 - No markdown
-- Use correct column names
+- Do not hallucinate columns or tables
 
 User question:
 {question}
 
-Return only SQL.
+Return ONLY the SQL query.
 """
 
     response = requests.post(
