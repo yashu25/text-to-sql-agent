@@ -8,7 +8,6 @@ from agents.sql_generator import generate_sql
 from agents.sql_validator import validate_sql
 from agents.sql_explainer import explain_sql
 
-
 # -------------------------
 # App & folders
 # -------------------------
@@ -22,21 +21,19 @@ os.makedirs("db", exist_ok=True)
 # -------------------------
 if not os.path.exists("db/sample.db"):
     import db.setup_db
+
+
+# -------------------------
+# SQL Hard Sanitizer
+# -------------------------
 def hard_sanitize_sql(sql: str) -> str:
-    # remove markdown
     sql = sql.replace("```sql", "").replace("```", "").strip()
-
-    # remove named parameters like :start_date
-    sql = re.sub(r':\w+', '', sql)
-
-    # remove any remaining colon (SQLite hates it)
-    sql = sql.replace(":", "")
-
-    # remove SQLite-unsafe positional syntax
+    sql = re.sub(r':\w+', '', sql)   # remove named params
+    sql = sql.replace(":", "")       # remove stray colons
     sql = re.sub(r'ORDER BY\s+\d+', '', sql, flags=re.IGNORECASE)
     sql = re.sub(r'GROUP BY\s+\d+', '', sql, flags=re.IGNORECASE)
-
     return sql
+
 
 # -------------------------
 # Excel → SQLite importer
@@ -49,7 +46,6 @@ def import_excel_to_db(file_path):
 
     for sheet in xls.sheet_names:
         df = pd.read_excel(xls, sheet_name=sheet)
-
         table = sheet.lower().replace(" ", "_")
         if table == "table":
             table = "data_table"
@@ -59,6 +55,7 @@ def import_excel_to_db(file_path):
 
     conn.close()
     return "\n".join(schema_lines)
+
 
 schema_text = ""
 
@@ -91,31 +88,28 @@ def home():
         if " table " in sql.lower():
             raise ValueError("Invalid SQL generated: reserved keyword 'table' used")
 
-        # SQLite does NOT support GROUP BY 1 / ORDER BY 1
         sql = re.sub(r'GROUP BY\s+1', '', sql, flags=re.IGNORECASE)
         sql = re.sub(r'ORDER BY\s+1', '', sql, flags=re.IGNORECASE)
 
         print("🟢 FINAL SQL:", sql)
 
-        # ---- Execute SQL ----
         # ---- Execute SQL (SAFE) ----
-conn = sqlite3.connect("db/sample.db")
-cur = conn.cursor()
+        conn = sqlite3.connect("db/sample.db")
+        cur = conn.cursor()
 
-try:
-    sql = hard_sanitize_sql(sql)
-    print("🔥 EXECUTING SQL:", sql)
-    cur.execute(sql)
-    result = cur.fetchall()
-except Exception as e:
-    sql = "INVALID SQL"
-    result = [(str(e),)]
-finally:
-    conn.close()
+        try:
+            sql = hard_sanitize_sql(sql)
+            print("🔥 EXECUTING SQL:", sql)
+            cur.execute(sql)
+            result = cur.fetchall()
+        except Exception as e:
+            sql = "INVALID SQL"
+            result = [(str(e),)]
+        finally:
+            conn.close()
 
-
-# Explain SQL
-explanation = explain_sql(sql)
+        # ---- Explain SQL (IMPORTANT: outside try/except) ----
+        explanation = explain_sql(sql)
 
     return render_template(
         "index.html",
@@ -124,6 +118,7 @@ explanation = explain_sql(sql)
         result=result,
         explanation=explanation
     )
+
 
 # -------------------------
 # Run
