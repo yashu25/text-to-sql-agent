@@ -8,6 +8,7 @@ from agents.sql_generator import generate_sql
 from agents.sql_validator import validate_sql
 from agents.sql_explainer import explain_sql
 
+
 # -------------------------
 # App & folders
 # -------------------------
@@ -21,6 +22,21 @@ os.makedirs("db", exist_ok=True)
 # -------------------------
 if not os.path.exists("db/sample.db"):
     import db.setup_db
+def hard_sanitize_sql(sql: str) -> str:
+    # remove markdown
+    sql = sql.replace("```sql", "").replace("```", "").strip()
+
+    # remove named parameters like :start_date
+    sql = re.sub(r':\w+', '', sql)
+
+    # remove any remaining colon (SQLite hates it)
+    sql = sql.replace(":", "")
+
+    # remove SQLite-unsafe positional syntax
+    sql = re.sub(r'ORDER BY\s+\d+', '', sql, flags=re.IGNORECASE)
+    sql = re.sub(r'GROUP BY\s+\d+', '', sql, flags=re.IGNORECASE)
+
+    return sql
 
 # -------------------------
 # Excel → SQLite importer
@@ -82,11 +98,21 @@ def home():
         print("🟢 FINAL SQL:", sql)
 
         # ---- Execute SQL ----
-        conn = sqlite3.connect("db/sample.db")
-        cur = conn.cursor()
-        cur.execute(sql)
-        result = cur.fetchall()
-        conn.close()
+        # ---- Execute SQL (SAFE) ----
+conn = sqlite3.connect("db/sample.db")
+cur = conn.cursor()
+
+try:
+    sql = hard_sanitize_sql(sql)
+    print("🔥 EXECUTING SQL:", sql)
+    cur.execute(sql)
+    result = cur.fetchall()
+except Exception as e:
+    sql = "INVALID SQL"
+    result = [(str(e),)]
+finally:
+    conn.close()
+
 
         # Explain SQL
         explanation = explain_sql(sql)
