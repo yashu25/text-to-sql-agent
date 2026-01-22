@@ -114,8 +114,8 @@ finally:
     conn.close()
 
 
-        # Explain SQL
-        explanation = explain_sql(sql)
+    # Explain SQL
+    explanation = explain_sql(sql)
 
     return render_template(
         "index.html",
