@@ -4,6 +4,7 @@ import requests
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 
 def generate_sql(question, schema):
+
     if not OPENROUTER_API_KEY:
         raise RuntimeError("OPENROUTER_API_KEY not set")
 
@@ -35,25 +36,43 @@ User question:
 Return ONLY the SQL query.
 """
 
-    response = requests.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json"
-        },
-        json={
-            "model": "mistralai/mistral-7b-instruct",
-            "messages": [
-                {"role": "system", "content": "You generate STRICT SQLite-compatible SQL only."},
-                {"role": "user", "content": prompt}
-            ],
-            "temperature": 0
-        },
-        timeout=30
-    )
+    try:
 
-    data = response.json()
-    if "choices" not in data:
-        raise RuntimeError(f"OpenRouter API Error: {data}")
+        response = requests.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "http://localhost",
+                "X-Title": "Text-to-SQL-Agent"
+            },
+            json={
+                # WORKING MODEL
+                "model": "meta-llama/llama-3.1-8b-instruct",
 
-    return data["choices"][0]["message"]["content"].strip()
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You generate STRICT SQLite-compatible SQL queries."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                "temperature": 0
+            },
+            timeout=30
+        )
+
+        data = response.json()
+
+        if "choices" not in data:
+            raise RuntimeError(f"OpenRouter API Error: {data}")
+
+        sql = data["choices"][0]["message"]["content"].strip()
+
+        return sql
+
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"Network Error calling OpenRouter: {str(e)}")
